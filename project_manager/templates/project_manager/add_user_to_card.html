@@ -1,0 +1,25 @@
+
+
+{% for user_detail in available_user %}
+{{user_detail}}
+<form method="post" action="/add_user_to_card">
+    {% csrf_token %}
+    <input type="hidden" name="card_id" value="{{card_id}}">
+    <input type="hidden" name="new_user_id" value="{{user_detail.id}}">
+    <input type="submit" value="Add {{user_detail.id}} : {{user_detail.First_name}}">
+</form>
+
+{% endfor %}
+
+{% for user in users %}
+{{user}}
+<form method="post" action="/add_user_to_card">
+    {% csrf_token %}
+    <input type="hidden" name="card_id" value="{{card_id}}">
+    <input type="hidden" name="delete_user" value="{{user}}">
+    <input type="submit" value="delete">
+</form>
+
+
+
+{% endfor %}

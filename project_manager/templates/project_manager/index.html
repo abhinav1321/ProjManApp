@@ -1,0 +1,40 @@
+
+
+{% if  username == 'None' %}
+
+
+<p>HI, Please Enter Username and Password to Login </p>
+
+<p><form action="/" method="post">
+    {% csrf_token %}
+  Username  <input type=text name='username' >
+    Password    <input type=text name='password' >
+    <input type="submit">
+</form>  </p>
+
+<h3> Not a User???</h3>
+<a href="/sign_up" >Create Account here</a>
+
+{% elif username is 'guest' %}
+
+<form action="/" method="post">
+    {% csrf_token %}
+    <input type=text name='username' >
+          <input type=text name='password'>
+    <input type="submit">
+</form>
+
+{% else %}
+
+
+<p> Logged in as {{username}}, Click on Below link to Logout</p>
+<a href="/?action=sign_out">Logout</a>
+
+
+<h2>Greetings, {{username}}. Welcome to Project Manager</h2>
+<h3>Go to Your Boards</h3>
+
+<a href="/boards">Click here </a>
+
+{% endif %}
+

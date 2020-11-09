@@ -1,0 +1,29 @@
+{{card_name}}
+
+{% if files|length == 0 %}
+<p>No Files Yet for Card :{{card_name}}</p>
+{% else %}
+{% for file in files %}
+
+<p> file :-  file_id- {{file.id}} , file_name= {{file.file_name}}
+    <form action="/download_file" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="file_id" id="file_id" value="{{file.id}}">
+    <input type="submit" value="Download Attachment">
+    </form>
+<p>
+
+
+{% endfor %}
+{% endif %}
+
+
+<body>
+<form method="POST" action="/file" enctype = "multipart/form-data" >
+        {% csrf_token %}
+    <p>   <input type="file" id="file_upload" name="file_upload"> </p>
+    <p>  <input type="text" id="file_name" name="file_name"> </p>
+    <p>  <input type="hidden" id="card_id" name="card_id" value="{{card_id}}"> </p>
+    <p>  <button type="submit" >Save</button> </p>
+</form>
+</body>

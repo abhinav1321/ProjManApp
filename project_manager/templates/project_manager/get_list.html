@@ -1,0 +1,55 @@
+{{username}}
+
+
+{% if not errors == '' %}
+    {{errors}}
+{% endif %}
+
+<h1> Welcome to Board {{board_name}}</h1>
+
+    <form method="post" action="/teams">
+        {% csrf_token %}
+        <input name="board_id" id="board_id" value="{{board_id}}" type="hidden">
+        <input   value="Edit_Team" type="submit">
+
+    </form>
+
+
+
+{% for list_element in list_data %}
+<p>---------------------------------------------------------------------------</p>
+{% for k,v in list_element.items %}
+    <p> {{k}} : {{v}} </p>
+   {% if k == 'cards_in_the_list' %}
+        <form method="post" action="/list_details" >
+            {% csrf_token %}
+            <input type="hidden" name="list_id" value="{{list_element.id}}">
+                <input type="submit" value="Open card List">
+                    </form>
+   {% endif %}
+    {% endfor %}
+<!-- Delete form -->
+<form method="delete" action="/add_or_update_list">
+
+    <input type="hidden" name="list_id" id="list_id" value="{{list_element.id}}">
+    <input type="hidden" name="board_id" id="board_id" value="{{board_id}}">
+    <input type="submit" value="Delete List">
+</form>
+            <p>.................................................................</p>
+{% endfor %}
+
+
+
+<p>and ss
+{{board_id}}</p>
+
+
+<h3> Create a add_or_update_list List for board {{board_id}}</h3>
+<form method="post" action="{% url 'add_or_update_list' %}" >
+    {% csrf_token %}
+    <input type="hidden" name="board_id" id="board_id" value="{{board_id}}">
+    <input type="text" name="list_name" id="id">
+    <input type="submit" value="Create List">
+
+</form>
+

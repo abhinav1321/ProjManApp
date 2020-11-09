@@ -1,0 +1,72 @@
+
+{{username}}
+{{list_id}}
+
+{% for item in cards %}
+
+<h1>Card : {{item.card_name}}</h1>
+<form method="post" action="/file" >
+    {% csrf_token %}
+    <input type="hidden" value="{{item.id}}" name="card_id" id="card_id">
+    <input type="submit" value="Go To files" >
+</form>
+
+<form method="get" action="/list_details">
+    <input type="hidden" name="card_id" id="card_id" value="{{item.id}}">
+    <input type="hidden" name="list_id" id="list_id" value="{{list_id}}">
+    <input type="submit" value="Delete This Card">
+
+</form>
+
+<form action="/card_checklist_view" method="post">
+    <input type="hidden" name="card_id" id="card_id" value="{{item.id}}">   {% csrf_token %}
+    <input type="submit" value="Get CheckList for Card">
+
+</form>
+
+<form action="/add_user_to_card" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="card_id" id ="card_id" value="{{item.id}}">
+    <input type="submit"  value="go">
+</form>
+
+
+<form method="post" action="/change_list">
+    {% csrf_token %}
+    <input type="hidden" value="{{item.id}}" name="card_id" id="card_id">
+    <input type="submit" value="Change list for card">
+</form>
+
+
+        <form method="post" action="/list_details">
+     {% for k,v in item.items %}
+       <p> {{k}} :  {{v}} </p>
+        {% if k == 'card_name' or k == 'priority' or k == 'description' %}
+
+            {% endif %}
+            {% endfor %}
+            --------------------------------------------------------------------------
+            <h3> Change Details </h3>
+            <p> Card_name <input type="text" name="card_name" id ="card_name" value="{{item.card_name}}"> </p>
+            {% csrf_token %}
+            <p> Description <input type="text" name="description" id ="description" value="{{item.description}}"> </p>
+            <p> Priority <input type="text" name="priority" id ="priority" value="{{item.priority}}"> </p>
+            <p>  <input type="submit" value="Change"></p>
+            <input type="hidden" name="card_id" id ="card_id" value="{{item.id}}">
+                                    <input type="hidden" name="list_id" id="list_id" value="{{list_id}}">
+
+
+        </form>
+==============================================================================================
+{% endfor %}
+
+<h2> Add a Card</h2>
+<form method="post" action="/list_details">
+    {% csrf_token %}
+    <p>Enter Card Name :  <input name="card_name" id="card_name" > </p>
+    <p>Enter Description :  <input name="description" id="description" > </p>
+    <p> Enter Due Date : <input type="date" id="due_date" name="due_date">
+                        <input type="hidden" name="list_id" id="list_id" value="{{list_id}}">
+    <input type="submit" value="Add">
+</form>
+

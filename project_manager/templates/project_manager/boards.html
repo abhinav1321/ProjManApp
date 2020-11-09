@@ -1,0 +1,58 @@
+
+{% if username == 'None' %}
+
+<a href=""> Please go here and Login </a>
+{% else %}
+
+Logged in as, {{username}}
+
+
+<h3>Boards for {{username}}</h3>
+---------------------------------------------------------
+{% for data_dict in board_data %}
+    <form method="post" action="/boards">
+        {% csrf_token %}
+{% for key, value in data_dict.items %}
+    <p>
+        {{ key }}:{{value}}
+        {% if key == 'board_name' or key == 'board_color' %}
+         <input type="text" id="{{key}}" name="{{key}}">
+        {% elif key == 'id' %}
+        <input type="hidden" id="id" name="id" value="{{value}}">
+        {% endif %}
+    </p>
+ {% endfor %}
+        <input type="submit" value="Change">
+    </form>
+
+<!--Opening lists for a board-->
+<form  method="post" action="/get_list">
+    {% csrf_token %}
+    <input type="hidden" id="board_id" name="board_id" value="{{data_dict.id}}">
+    <input type="Submit" value="Get Lists for {{data_dict.board_name}}">
+</form>
+
+<!--Deleting board for a user-->
+<form method="get" action="/boards">
+    <input type="hidden" id="board_id" name="board_id" value="{{data_dict.id}}">
+    <input type="submit" value="Delete This Board">
+</form>
+----------------------------------------------------------------------------------
+{% endfor %}
+
+<h2> Add A New Board here</h2>
+<form action="/boards" method="post">
+    {% csrf_token %}
+    <input type="text" id="board_name" name="board_name">
+    <input type="text" id="board_color" name="board_color">
+    <input type="submit" value="Add Board">
+
+</form>
+
+
+{% endif %}
+
+
+{% if errors %}
+{{errors}}
+{% endif %}

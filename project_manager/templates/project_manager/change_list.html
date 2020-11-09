@@ -1,0 +1,22 @@
+
+
+
+{{username}}
+
+
+{% for list in lists %}
+{% if list.id == current_list %}
+
+<p> List Id :---> {{list.id}} , List Name ---> {{list.list_name}} | Current List </p>
+{% else %}
+<form action="/change_list" method="post">
+        {% csrf_token %}
+    <input type="hidden" name="card_id" id="card_id" value={{card_id}}>
+<p>
+<input type="hidden" name="list_id" id="list_id" value={{list.id}}>
+    List Id :---> {{list.id}} , List Name ---> {{list.list_name}}
+    <input type="submit" value="Change" >
+</form>
+</p>
+{% endif %}
+{% endfor %}

@@ -1,0 +1,42 @@
+card_id :  {{card_id}}
+<p>
+==========================================================================</p>
+
+{% for item in checklist %}
+<form action="/card_checklist_view" method="post" >
+    {% csrf_token %}
+        <input type="hidden" name="checklist_id" id="checklist_id" value="{{item.id}}">
+        <input type="hidden" name="card_id" id="card_id" value="{{card_id}}">
+        <input type="text" name="to_edit" id="to_edit" >
+        <input type="text" name="checked" id="checked" >
+        <input type="submit" value="Edit">
+</form>
+
+<form action="/card_checklist_view" method="post" >
+    {% csrf_token %}
+        <input type="hidden" name="to_delete" id="to_delete" value="{{item.id}}">
+        <input type="hidden" name="card_id" id="card_id" value="{{card_id}}">
+
+    <input type="submit" value="Delete">
+</form>
+
+{% for k,v in item.items %}
+{{k}} : {{v}}
+{% endfor %}
+<p>---------------------------------------------------------------------------------</p>
+{% endfor %}
+
+
+<p>
+======================================================================================
+=======================================================================================
+</p>
+<h3> Add a New Checklist Item</h3>
+<form method="post" action="/card_checklist_view">
+    {% csrf_token %}
+    <input type="hidden" name="card_id" id="card_id" value="{{card_id}}">
+    <input type="text" name="to_create" id="to_create" >
+    <input type="text" name="checked" id="checked" value="False">
+    <input type="submit" value="Create">
+
+</form>

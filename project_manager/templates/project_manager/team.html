@@ -1,0 +1,51 @@
+
+
+{% for item in team_data %}
+
+{% for k,v in item.items %}
+<p>{{k}} : {{v}}</p>
+{% endfor %}
+<form action="/teams" method="post">
+{% csrf_token %}
+    <input value="{{team_id}}" name="team_id" id="team_id" type="hidden">
+    <input value="{{item.u_id}}" name="to_remove" id="to_remove" type="hidden">
+    <input type="submit" value="Delete">
+</form>
+-------------------------------
+{% endfor %}
+
+<h2>Search members</h2>
+<h3>By ID</h3>
+<form action="/teams" method="post">
+    {% csrf_token %}
+<input name="search_by_id" id="search_by_id" type="text">
+<input name="team_id" id="team_id" type="hidden" value="{{team_id}}">
+<input type="submit" value="Search">
+</form>
+
+<h2>By Name</h2>
+<form action="/teams" method="post">
+        {% csrf_token %}
+<input name="search_by_name" id="search_by_name" type="text">
+<input name="team_id" id="team_id" type="hidden" value="{{team_id}}">
+<input type="submit" value="Search">
+</form>
+
+
+<h3> Add a Member </h3>
+<form action="/teams" method="post" id="add_form">
+    {% csrf_token %}
+{% for user in search_result %}
+    {{user.First_name}}
+    {{user.Last_name}}
+    <input type="radio" name="to_add" id="to_add" value="{{user.id}}">
+{% endfor %}
+    <input type="hidden" name="team_id"  value="{{team_id}}">
+
+    <input type="submit" value="Add">
+</form>
+
+<select name="role" id="role" form="add_form">
+        <option  value="admin"> Admin</option>
+        <option  value="member"> Member</option>
+    </select>
