@@ -17,7 +17,7 @@ class CardSerializer(serializers.ModelSerializer):
 class ExtendedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExtendedUser
-        fields = ['id', 'First_name', 'Last_name', 'Gender', 'account_type']
+        fields = ['id', 'First_name', 'Last_name', 'Gender', 'account_type', 'user']
 
 
 class ListSerializer(serializers.ModelSerializer):

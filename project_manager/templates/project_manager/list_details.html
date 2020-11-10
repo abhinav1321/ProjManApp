@@ -51,6 +51,7 @@
             {% csrf_token %}
             <p> Description <input type="text" name="description" id ="description" value="{{item.description}}"> </p>
             <p> Priority <input type="text" name="priority" id ="priority" value="{{item.priority}}"> </p>
+            <p> Due Date <input type="date" id="due_date" name="due_date" > </p>
             <p>  <input type="submit" value="Change"></p>
             <input type="hidden" name="card_id" id ="card_id" value="{{item.id}}">
                                     <input type="hidden" name="list_id" id="list_id" value="{{list_id}}">

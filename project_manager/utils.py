@@ -10,6 +10,10 @@ from datetime import datetime
 
 
 def sign_in(request):
+    """
+        GET method - with 'action' as 'sign_out' - to Sign Out
+        Post Method - with username, password - authenticate and create session
+    """
     username, create_session = None, None
     if request.method == 'GET':
         if 'action' in request.GET and request.GET['action'] == 'sign_out':
@@ -32,6 +36,9 @@ def sign_in(request):
 
 
 def check_user_logged(request):
+    """
+    check if user is logged, returns username
+    """
     username = 'None'
     if request.session.has_key('username'):
         username = request.session['username']
@@ -39,6 +46,9 @@ def check_user_logged(request):
 
 
 def board_components(username):
+    """
+        gets username in input and returns all the boards created by a user
+    """
     user = User.objects.filter(username=username)[0]
     extended_user_name = ExtendedUser.objects.filter(user=user)[0]
     board = Board.objects.filter(owner=extended_user_name)
@@ -47,6 +57,9 @@ def board_components(username):
 
 
 def get_list_data(board_id):
+    """
+        Returns data for all the lists contained in the requested board_id
+    """
     list_data = list_components(board_id)
 
     for item in list_data:
@@ -66,6 +79,10 @@ def get_list_data(board_id):
 
 
 def list_components(board_id):
+    """
+            Returns data for all the lists contained in the requested board_id
+            # Currently not in use
+        """
     board = Board.objects.filter(pk=board_id)
     list_objects = List.objects.filter(owner=board[0])
     components = ListSerializer(list_objects, many=True)
@@ -73,6 +90,10 @@ def list_components(board_id):
 
 
 def reset_priority_on_deletion(card_obj):
+    """
+        Resets Card Priorities for rest of the cards on deletion of a card
+            inputs card_obj
+    """
     cards_in_current_list = Card.objects.filter(fk_list=card_obj.fk_list.id).order_by('priority')
     for card in cards_in_current_list:
         if card.priority > card_obj.priority:
@@ -80,6 +101,13 @@ def reset_priority_on_deletion(card_obj):
 
 
 def change_card_list(card_id, new_list_id, new_card=False):
+    """
+        change_card_list(card_id, new_list_id, new_card=False)
+        Used to Change the list of the card
+            both For a new Card |or| For a card coming from other list
+        Util Function : reset_priority_on_deletion(card_obj) - resets priorities in
+                                                                list from which the card is moving out
+    """
     # This function is also called after creation of new card.
     card_obj = Card.objects.get(pk=card_id)
 
@@ -100,6 +128,10 @@ def change_card_list(card_id, new_list_id, new_card=False):
 
 
 def get_team(board_id=None, team_id=None):
+    """
+        get_team(board_id=None, team_id=None)
+            returns list of members
+    """
     members = []
     if board_id is not None:
         member_list = []
@@ -115,6 +147,11 @@ def get_team(board_id=None, team_id=None):
 
 
 def create_team(board_id, team_name='New Team'):
+    """
+        create_team(board_id, team_name='New Team')
+        Creates a New Team
+            inputs variables-  board_id, team_name
+    """
     board_obj = Board.objects.get(pk=board_id)
     data = {}
     data['team_name'] = team_name
@@ -126,18 +163,30 @@ def create_team(board_id, team_name='New Team'):
 
 
 def add_team_member(team_id, extended_uid, role='member'):
+    """
+        add_team_member(team_id, extended_uid, role='member'):
+            Adds a new member in team, Input- team_id, Extended Uid and role(member/admin)
+    """
     team_obj = Team.objects.get(pk=team_id)
     team_member = TeamMembers.objects.create(team=team_obj, role=role, u_id=extended_uid)
     team_member.save()
 
 
 def remove_team_member(team_id, extended_uid):
+    """
+        deletes a team member
+            remove_team_member(team_id, extended_uid)
+            Input variables - team_id, extended_uid
+    """
     team_obj = Team.objects.get(pk=team_id)
     members = TeamMembers.objects.filter(team=team_obj).filter(u_id=extended_uid)
     members.delete()
 
 
 def get_files(card_id):
+    """ Input variable -> card_id
+        Returns a list of dicts containing file data {id, file_name}
+    """
     file_obj = FileUpload.objects.filter(fk_card=card_id)
     file_list = []
     for file in file_obj:
@@ -147,16 +196,30 @@ def get_files(card_id):
 
 
 def upload_file(card_id, file_name, file_data):
+    """
+        to save an uploaded file
+        upload_file(card_id, file_name, file_data)
+            input variables: file_name, file, card_id
+    """
     card_obj = Card.objects.get(pk=card_id)
     file = FileUpload.objects.create(file_name=file_name, file=file_data, fk_card=card_obj)
     file.save()
 
 
 def edit_board_data(request):
+    """
+        request variable from view "boards(request)" is directly passed on to this function
+
+        edit_board_data(request)
+            input variables (inside request):
+                           a. id, board_name, board_color -  ""Update a board""
+                           b.  board_name, board_color -  ""Add a board""
+    """
     username = check_user_logged(request)
     errors = message = ''
     if request.method == 'POST':
         data = request.POST.copy()
+        print(data)
         data['created_date'] = datetime.now()
         del data['csrfmiddlewaretoken']
 
@@ -188,6 +251,11 @@ def edit_board_data(request):
 
 
 def change_card_location(card_id, new_priority):
+    """
+        change_card_location(card_id, new_priority)
+            Changes the priority for the given card
+                and resets the priority for other cards accordingly
+    """
     card_id, new_priority = int(card_id), int(new_priority)
     card_obj = Card.objects.get(pk=card_id)
     list_name = card_obj.fk_list
@@ -225,16 +293,24 @@ def change_card_location(card_id, new_priority):
 
     error = []
     for element in result:
+
         obj = Card.objects.get(pk=element['id'])
+
         card_serializer = CardSerializer(obj, data=element)
         if card_serializer.is_valid():
             card_serializer.save()
             error = card_serializer.errors
+
         else:
             error.append(error)
 
 
 def create_checklist_item(card,  element, checked):
+    """
+        create a new item inside checklist
+            create_checklist_item(card,  element, checked)
+        input variables : card_object, element(checklist element) , checked/unchecked
+    """
     card = Card.objects.get(pk=card).id
     data = {'card': card, 'element': element, 'checked': checked}
     serializer = CardChecklistSerializer(data=data)
@@ -244,6 +320,11 @@ def create_checklist_item(card,  element, checked):
 
 
 def edit_checklist_item(checklist_id, element, checked):
+    """
+            edit the checklist item
+                edit_checklist_item(checklist_id, element, checked)
+            input variables : checklist_id, element(checklist element) , checked/unchecked
+        """
     obj = CardChecklist.objects.get(pk=checklist_id)
 
     data = {'id': checklist_id, 'element': element, 'checked': checked, 'card': obj.card.id}
@@ -254,12 +335,18 @@ def edit_checklist_item(checklist_id, element, checked):
 
 
 def delete_checklist_item(checklist_id):
+    """ delete the element , input variable: checklist_id"""
     obj = CardChecklist(pk=checklist_id)
     if obj:
         obj.delete()
 
 
 def available_user_for_card(card_id):
+    """
+        available_user_for_card(card_id)
+        Input : card_id
+        returns: List of dicts - available_user(dict){id,First_name,Last_name,role}
+    """
     try:
         board_id = Card.objects.get(pk=card_id).fk_list.owner.id
         team_object = Team.objects.get(from_board=board_id)
@@ -281,6 +368,12 @@ def available_user_for_card(card_id):
 
 
 def add_user_in_card(card_id, new_user_id):
+    """
+        add_user_in_card(card_id, new_user_id)
+        Adds user in card
+    Note: Please make sure availability is already checked
+                    with util function -available_user_for_card() )
+    """
     card_obj = Card.objects.filter(pk=card_id)
     users = card_obj[0].user_list
     try:
@@ -300,7 +393,10 @@ def add_user_in_card(card_id, new_user_id):
 
 
 def delete_user_in_card(card_id, user_id):
-    print('here')
+    """
+        delete_user_in_card(card_id, user_id)
+        Input : card_id, user_id
+    """
     card_obj = Card.objects.filter(pk=card_id)
     users = card_obj[0].user_list
     users = str(users).split(' ')
@@ -312,6 +408,11 @@ def delete_user_in_card(card_id, user_id):
 
 
 def extend_user(user_obj, first_name, last_name, gender,  account_type):
+    """
+        extend_user(user_obj, first_name, last_name, gender,  account_type)
+        it is to be called automatically while creating a new user
+            Used for extending django.contrib.auth.User to model to ExtendedUser model
+    """
     account = 2
     if account_type == 'free':
         account = 2
@@ -327,6 +428,5 @@ def extend_user(user_obj, first_name, last_name, gender,  account_type):
     print(data)
     serializer = ExtendedUserSerializer(data=data)
     if serializer.is_valid():
-        print('savingg')
         serializer.save()
     print(serializer.errors)

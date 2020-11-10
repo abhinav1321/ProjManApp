@@ -16,6 +16,9 @@ import os
 
 # Create your views here.
 def index(request):
+    """
+    Index Page is containing login method, new users May SignUp From a link to sign_up
+    """
     if request.method == 'POST':
         login = sign_in(request)
         if login[0] == 'login failed':
@@ -32,6 +35,15 @@ def index(request):
 
 
 def sign_up(request):
+    """
+    Initial Page to Sign Up. Containing Form at sign_up.html template,
+    Gets redirect back-to same page after processing the request
+
+    After successful creation on user, it calls Util function
+                extend_user(user.id, first_name, last_name, gender, account_type)
+                To Extend the Auth user to ExtendedUser Model
+    """
+    message = ''
     if 'username' in request.GET.keys():
         username = request.GET.get('username')
         first_name = request.GET.get('first_name')
@@ -46,18 +58,24 @@ def sign_up(request):
             user = User.objects.create_user(username, email, password)
             try:
                 extend_user(user.id, first_name, last_name, gender, account_type)
+                message = 'Account Created Successfully, Please Login '
             except Exception as error:
-                print(error)
+                message = error
         except Exception as e:
-            print(e)
+            message = e
         else:
-            return render(request, 'project_manager/sign_up.html')
+            return render(request, 'project_manager/sign_up.html', {'message': message})
 
-    return render(request, 'project_manager/sign_up.html')
+    return render(request, 'project_manager/sign_up.html', {'message': message})
 
 
 # Boards View
 def boards(request):
+    """
+    Landing Page for boards,
+     1. "board_data" function Get all boards for current user.
+     2. "edit_board_data" function handles POST, UPDATE and DELETE of a board
+    """
     username = check_user_logged(request)
     if not username == 'None':
         # Utils Function edit_board_data() taking care of POST, UPDATE and DELETE
@@ -71,6 +89,15 @@ def boards(request):
 
 
 def get_list(request):
+    """
+    Gets list data for a board,
+    Utils Functions:
+    1. get_list_data() - inputs board_id and gets all lists for the board
+    2. get_team() - If given board id, returns team data for the board,
+                    if given team_id, returns data for the team
+    3. create_team() - creates a new team automatically for the board
+    4. get_user_logged() - checks if the user is logged in, returns username or 'None'
+    """
     username = check_user_logged(request)
     if not username == 'None':
         if request.method == 'POST':
@@ -99,6 +126,22 @@ def get_list(request):
 
 # Post and Patch list
 def add_or_update_list(request):
+    """
+    This view helps with
+    1. addition of a new list: POST Method:
+                                Input variables - board_id, list_name
+    2. Deletion of a list : GET method
+                            Input variables - Board_id, list id
+    3. Utils Function used - a. get_list_data(board_id)
+                                    : returns all the lists for current board
+                             b. get_team(board_id)
+                                    : returns team_data
+                             c. check_user_logged:
+                                    : checks for user session and returns username
+                                        if not logged in - returns 'None'
+    This View directs to get_list/html template
+
+    """
     username = check_user_logged(request)
     if username != 'None':
         board_id = ''
@@ -107,6 +150,7 @@ def add_or_update_list(request):
         if request.method == 'POST':
 
             data = request.POST.copy()
+            print(data)
             data['created_date'] = datetime.now()
             del data['csrfmiddlewaretoken']
             board_id = data['board_id']
@@ -151,6 +195,22 @@ def add_or_update_list(request):
 
 # List Details contains all the cards list contains
 def list_details(request):
+    """
+    Contains details of the list, i.e. Cards included inside it
+    List details contains all the card inside a list
+    Methods:
+        GET Method - Used to Delete a card
+                    inputs List_id and Card_id in requests
+
+        POST Method: request method must have following variables
+                    To Edit Card  :- card_id, card_name, description, priority (fields are auto-populated in html)
+                    To Add a New Card: Card_name, Description, Due Date
+        util functions:
+                1. change_card_location : a. called when changing th priority of
+                                           card i.e. -> moving a card within the list
+
+                2. change card list --->    called when adding a new card
+    """
     username = check_user_logged(request)
     errors = ''
     if username != 'None':
@@ -176,8 +236,13 @@ def list_details(request):
                     if 'priority' in data.keys() and data['priority'] != '':
                         change_card_location(data['card_id'], data['priority'])
                     data['fk_list'] = data['list_id']
-                    card_obj = Card.objects.get(pk=data['card_id'])
+                    if data['due_date'] == '':
+                        data['due_date'] = Card.objects.get(id=data['card_id']).due_date
+                    else:
+                        data['due_date'] = datetime.strptime(data['due_date'], '%Y-%m-%d')
 
+                    card_obj = Card.objects.get(pk=data['card_id'])
+                    print(data, 'data')
                     del data['list_id']
                     del data['card_id']
                     serializer = CardSerializer(card_obj, data=data)
@@ -201,14 +266,33 @@ def list_details(request):
         objects = Card.objects.filter(**{'fk_list': list_id})
         cards = CardSerializer(objects, many=True)
         return render(request, 'project_manager/list_details.html', {
-                                                    'list_id': list_id,
-                                                    'username': username,
-                                                    'cards': cards.data,
-                                                    'errors': errors,
-                                                    })
+                                                                        'list_id': list_id,
+                                                                        'username': username,
+                                                                        'cards': cards.data,
+                                                                        'errors': errors,
+                                                                })
 
 
 def teams(request):
+    """
+        Team View outputs requested team data,
+            Can be accessed from (get_list.html) page with board id
+            or can be accesed from team.html page, with team_id
+
+        functionalities:
+              Can search for a member (by First_name or by last_name), or by extended_u_id
+
+              Can add a searched member,
+                         with input variables(inside request):    a. board_id
+                                                                  b. team_id
+                                                                  c. to_add - (extended user id)
+                                                                  d. role  - (admin or member)
+              Can delete a present member :
+                        with input variables(inside request)      a. team_id
+                                                                  b. to_delete (extended user id)
+
+        Utils functions used :  get_team(team_id)
+    """
     username = check_user_logged(request)
     search_result = []
     if username != 'None':
@@ -257,6 +341,16 @@ def teams(request):
 
 
 def file(request):
+    """
+        For Adding Files in card and view added files
+
+            Input Variables(inside request)
+                                : card_id , file_name, file itself --> for uploading a file
+                                : card_id   -- > for getting files already uploaded
+            Utils Functions Used
+                                :get_files(card_id) -- returns file data
+
+    """
     username = check_user_logged(request)
     if username != 'None':
         data = request.POST.copy()
@@ -273,6 +367,8 @@ def file(request):
 
 
 def download_file(request):
+    """ for Downloading the selected file ->  from file.html"""
+
     file_id = request.POST.get('file_id')
     file_obj = FileUpload.objects.get(pk=file_id)
 
@@ -283,6 +379,16 @@ def download_file(request):
 
 
 def change_list(request):
+    """
+    changing list of a card from current list to any other list in the board
+            input variables methods :
+                                a. card_id, list_id (new_list) ->moves input Card to the given list_id
+                                                                (by changing foreign key to the given list)
+
+                                b. card_id (without list_id) -> gives back data for all the list in board
+
+    util Function : get_list_data(board_id) -> gets all the lists available for current board
+    """
     username = check_user_logged(request)
     if username != 'None':
         data = request.POST.copy()
@@ -301,6 +407,13 @@ def change_list(request):
 
 
 def card_checklist_view(request):
+    """
+        Create, Update and Delete a checklist element
+            variables(inside request):  card_id -     simply view all elements
+                                        card_id, to_edit(checklist_id), checked(True,False)  -Updation
+                                        card_id, to_delete(checklist_id)   -- Deletion
+                                        card_id, to_create
+    """
     username = check_user_logged(request)
     if username != 'None':
         data = request.POST.copy()
@@ -328,6 +441,14 @@ def card_checklist_view(request):
 
 
 def add_user_to_card(request):
+    """
+        Adding/Deleting user (extended_userid) to card
+            input variables  : card_id, new_user_id (extended uid) -  adding a new user
+                             : card_id, delete_user (extended uid)  - deleting a user
+
+        Util Function - available_user_for_card(card_id) - gets the users available on current board
+                                                                    (which can be extended to card)
+     """
     data = request.POST.copy()
     card_id = data['card_id']
     available_user = available_user_for_card(card_id)
