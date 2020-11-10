@@ -1,8 +1,10 @@
 
 
 
-{{username}}
+Hi, {{username}}
 
+
+<h2>Available Lists In baord</h2>
 
 {% for list in lists %}
 {% if list.id == current_list %}
@@ -15,7 +17,7 @@
 <p>
 <input type="hidden" name="list_id" id="list_id" value={{list.id}}>
     List Id :---> {{list.id}} , List Name ---> {{list.list_name}}
-    <input type="submit" value="Change" >
+    <input type="submit" value="Change Card to This List" >
 </form>
 </p>
 {% endif %}
