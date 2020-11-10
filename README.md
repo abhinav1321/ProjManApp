@@ -30,6 +30,44 @@ and Model TeamMember contains a foreignKey to Model Team
    
    ..Implemented by using a Search Field for available users, and then adding the searched users.
 
+## Screenshots
+
+Index Page
+![Index](https://github.com/abhinav1321/ProjManApp/blob/main/index.png)  
+Index after log in
+![index ](https://github.com/abhinav1321/ProjManApp/blob/main/loggedinindex.png)
+
+Sign Up
+![Signup](https://github.com/abhinav1321/ProjManApp/blob/main/signup.png)
+
+Boards
+![Boards](https://github.com/abhinav1321/ProjManApp/blob/main/boards.png)
+
+
+Lists
+![Lists](https://github.com/abhinav1321/ProjManApp/blob/main/lists.png)
+
+Cards
+![Cards](https://github.com/abhinav1321/ProjManApp/blob/main/cards.png) 
+
+![card](https://github.com/abhinav1321/ProjManApp/blob/main/card_change.png)
+
+
+
+Edit Card
+![Edit card](https://github.com/abhinav1321/ProjManApp/blob/main/card_change.png)
+
+
+Adding Users to Card
+![Add user to card](https://github.com/abhinav1321/ProjManApp/blob/main/add_user_to_card.png)
+
+
+File Upload
+![file upload](https://github.com/abhinav1321/ProjManApp/blob/main/fileupload.png)
+
+
+Change list 
+![change](https://github.com/abhinav1321/ProjManApp/blob/main/chenge_user_to_list.png)
 
 
 
